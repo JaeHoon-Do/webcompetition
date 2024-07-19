@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="webcompetition.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="black-bg" id="pay">
+        <div class="white-bg">
+            <form>
+                <div class="my-3">
+                    <h5 class="fw-semibold">성함</h5>
+                    <input type="text" class="form-control" id="name">
+                </div>
+                <div class="my-3">
+                    <h5 class="fw-semibold">연락처</h5>
+                    <input type="text" class="form-control" id="contacts">
+                </div>
+                <button type="submit" class="btn btn-dark" id="send">입력완료</button>
+                <button type="button" class="btn btn-dark close">닫기</button>
+            </form>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">집꾸미기</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">스토어</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">시공견적</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-bg">
+        <div class="main">
+            <form id="search" onsubmit="return false;">
+                <input type="text" placeholder="검색어입력">
+            </form>
+
+            <div class="container mt-4">
+                <div class="row">
+                    <!-- <div class="col-sm-3 p-3" draggable="true" id="0">
+                        <div class="bg-white p-3">
+                            <img src="webcompetition/pr1.JPG" width="100%" draggable="false">
+                            <h5 class="fw-semibold mt-2">식기세척기</h5>
+                            <p>세척나라</p>
+                            <h5>가격 : 10000</h5>
+                            <button type="button" class="btn btn-dark mb-4 mt-2 add">담기</button>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+
+            <div class="cart-bg mt-4 p-4">
+                <h5 class="fw-semibold">장바구니</h5>
+                <div class="cart">
+                    <p class="fw-semibold">여기로 드래그</p>
+
+                </div>
+            </div>
+
+            <h5 class="mt-3 fw-semibold">최종가격</h5>
+            <p id="totalPrice"></p>
+            <button type="button" class="btn btn-dark" id="payment">구매하기</button>
+        </div>
+    </div>
+
+    <div class="black-bg" id="receipt">
+        <div class="white-bg canvas m-auto">
+            <canvas id="canvas" width="350" height="300"></canvas>
+            <button type="button" class="btn btn-dark close">닫기</button>
+        </div>
+    </div>
+
+
+
+
+    <script>
+
+        $('#payment').on('click', function () {
+            $('#pay').addClass('show-modal');
+        });
+
+        $('.close').on('click', function () {
+            $('#pay').removeClass('show-modal');
+            $('#receipt').removeClass('show-modal');
+        });
+
+        $('form').on('submit', function (e) {
+            if (document.getElementById('name').value == '') {
+                alert('성함을 채워주세요');
+                e.preventDefault();
+            } else if (document.getElementById('contacts').value == '') {
+                alert('연락처를 채워주세요');
+                e.preventDefault();
+            } else {
+                e.preventDefault();
+                $('#pay').removeClass('show-modal');
+                $('#receipt').addClass('show-modal');
+                var today = new Date();
+
+                var year = today.getFullYear();
+                var month = ('0' + (today.getMonth() + 1)).slice(-2);
+                var day = ('0' + today.getDate()).slice(-2);
+
+                var dateString = year + '-' + month + '-' + day;
+
+                var today = new Date();
+
+                var hours = ('0' + today.getHours()).slice(-2);
+                var minutes = ('0' + today.getMinutes()).slice(-2);
+                var seconds = ('0' + today.getSeconds()).slice(-2);
+
+                var timeString = hours + ':' + minutes + ':' + seconds;
+
+                var name = $('#name').val();
+                var contacts = $('#contacts').val();
+
+                var canvas = document.getElementById('canvas');
+                var c = canvas.getContext('2d');
+                c.clearRect(0, 0, 350, 300);
+                c.font = 'bold 25px dotum';
+                c.fillText('영수증', 2, 30);
+                c.font = 'bold 15px dotum'
+                c.fillText(`${dateString} ${timeString}`, 0, 60);
+                c.font = '15px dotum'
+                c.fillText(`구매자 : ${name}`, 0, 100);
+                c.fillText(`연락처 : ${contacts}`, 0, 120);
+                c.fillText(`총 합계 : ${total}`, 0, 180);
+            }
+        });
+
+        function addItem(ary) {
+            ary.forEach((item, i) => {
+                var template =
+                    `<div class="col-sm-3" draggable="true" id="${item.id}">
+                            <div class="bg-white p-3">
+                                <img src="./webcompetition/${item.photo}" width="100%" draggable="false">
+                                <h5 class="fw-semibold mt-2">${item.title}</h5>
+                                <p>${item.brand}</p>
+                                <h5>가격 : ${item.price}</h5>
+                                <button type="button" class="btn btn-dark mb-4 mt-2 add">담기</button>
+                            </div>
+                        </div>`
+                $('.row').append(template);
+            });
+        }
+
+        function addItemYellow(ary, inputText) {
+            ary.forEach((item, i) => {
+                var template =
+                    `<div class="col-sm-3" draggable="true" id="${item.id}">
+                            <div class="bg-white p-3">
+                                <img src="./webcompetition/${item.photo}" width="100%" draggable="false">
+                                <h5 class="fw-semibold mt-2">${item.title}</h5>
+                                <p>${item.brand}</p>
+                                <h5>가격 : ${item.price}</h5>
+                                <button type="button" class="btn btn-dark mb-4 mt-2 add">담기</button>
+                            </div>
+                        </div>`;
+                $('.row').append(template.replaceAll(inputText, `<span style="background : yellow">${inputText}</span>`));
+            });
+        }
+
+        var amount = { "식기세척기": 0, "원목 침대 프레임": 0, "천연 디퓨저 세트": 0, "시원한 서큘레이터": 0 };
+
+        var total = (amount['식기세척기'] * 10000) + (amount['원목 침대 프레임'] * 20000) + (amount['천연 디퓨저 세트'] * 30000) + (amount['시원한 서큘레이터'] * 40000);
+
+        function addCart(object) {
+            amount[object.title]++;
+            total = (amount['식기세척기'] * 10000) + (amount['원목 침대 프레임'] * 20000) + (amount['천연 디퓨저 세트'] * 30000) + (amount['시원한 서큘레이터'] * 40000);
+            $('#totalPrice').html(`합계 : ${total}`);
+            var template =
+                `<div class="in-cart"   draggable="false" id="cart${object.id}">
+                            <div class="bg-white p-3">
+                                <img src="./webcompetition/${object.photo}" width="100%" draggable="false">
+                                <h5 class="fw-semibold mt-2">${object.title}</h5>
+                                <p>${object.brand}</p>
+                                <h5>${object.price}</h5>
+                                <form onsubmit="return false;">
+                                    <input type="number" value="${amount[object.title]}" style="width: 100%;">
+                                </form>
+                            </div>
+                        </div>`
+            $('.cart').append(template);
+        }
+
+        $.get('./webcompetition/store.json').done((ary) => {
+            addItem(ary.products);
+        })
+
+        document.querySelector('#search').addEventListener('input', function (e) {
+            var inputText = $('#search input').val();
+            $.get('./webcompetition/store.json').done((ary) => {
+                var filterItems = ary.products.filter(function (a) {
+                    return a.title.includes(inputText) == true || a.brand.includes($('#search input').val()) == true
+                });
+                $('.row').html('');
+                addItemYellow(filterItems, inputText)
+                if (inputText == '' || inputText == ' ') {
+                    $('.row').html('');
+                    addItem(ary.products);
+                }
+            });
+        })
+
+        $(document).on('dragstart', '.col-sm-3', function (e) {
+            e.originalEvent.dataTransfer.setData('item', e.target.id);
+            // console.log(e.target.id)
+        });
+
+        $('.cart').on('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        var exist = 0;
+        $('.cart').on('drop', (e) => {
+            if (exist == 0) {
+                $('.cart').html('');
+                exist = 1;
+            }
+            var itemId = e.originalEvent.dataTransfer.getData('item');
+            $.get('./webcompetition/store.json').done((ary) => {
+                if (amount[ary.products[itemId].title] == 0) {
+                    addCart(ary.products[itemId]);
+                } else {
+                    amount[ary.products[itemId].title]++;
+                    $(`#cart${itemId} input`).val(amount[ary.products[itemId].title]);
+                    total = (amount['식기세척기'] * 10000) + (amount['원목 침대 프레임'] * 20000) + (amount['천연 디퓨저 세트'] * 30000) + (amount['시원한 서큘레이터'] * 40000);
+                    $('#totalPrice').html(`합계 : ${total}`);
+                }
+            });
+        });
+
+        $(document).on('click', '.add', (e) => {
+            if (exist == 0) {
+                $('.cart').html('');
+                exist = 1;
+            }
+            var itemId = e.target.parentElement.parentElement.id;
+            $.get('./webcompetition/store.json').done((ary) => {
+                if (amount[ary.products[itemId].title] == 0) {
+                    addCart(ary.products[itemId]);
+                } else {
+                    amount[ary.products[itemId].title]++;
+                    $(`#cart${itemId} input`).val(amount[ary.products[itemId].title]);
+                    total = (amount['식기세척기'] * 10000) + (amount['원목 침대 프레임'] * 20000) + (amount['천연 디퓨저 세트'] * 30000) + (amount['시원한 서큘레이터'] * 40000);
+                    $('#totalPrice').html(`합계 : ${total}`);
+                }
+            });
+        });
+
+        $(document).on('change', '.in-cart form', (e) => {
+            var inputAmount = e.target.value;
+            var targetId = e.target.parentElement.parentElement.parentElement.id.replace('cart', '');
+            // console.log(targetId);
+            // console.log(inputAmount);
+            switch (targetId) {
+                case '0':
+                    amount["식기세척기"] = inputAmount;
+                    // console.log(amount)
+                    break
+                case '1':
+                    amount["원목 침대 프레임"] = inputAmount;
+                    // console.log(amount)
+                    break
+                case '2':
+                    amount["천연 디퓨저 세트"] = inputAmount;
+                    // console.log(amount)
+                    break
+                case '3':
+                    amount["시원한 서큘레이터"] = inputAmount;
+                    // console.log(amount)
+                    break
+            }
+            total = (amount['식기세척기'] * 10000) + (amount['원목 침대 프레임'] * 20000) + (amount['천연 디퓨저 세트'] * 30000) + (amount['시원한 서큘레이터'] * 40000);
+            $('#totalPrice').html(`합계 : ${total}`);
+        });
+
+        $('#totalPrice').html(`합계 : ${total}`);
+
+        // var today = new Date();
+
+        // var year = today.getFullYear();
+        // var month = ('0' + (today.getMonth() + 1)).slice(-2);
+        // var day = ('0' + today.getDate()).slice(-2);
+
+        // var dateString = year + '-' + month + '-' + day;
+
+        // var today = new Date();
+
+        // var hours = ('0' + today.getHours()).slice(-2);
+        // var minutes = ('0' + today.getMinutes()).slice(-2);
+        // var seconds = ('0' + today.getSeconds()).slice(-2);
+
+        // var timeString = hours + ':' + minutes + ':' + seconds;
+
+        // var name = $('#name').val();
+        // var contacts = $('#contacts').val();
+
+        // var canvas = document.getElementById('canvas');
+        // var c = canvas.getContext('2d');
+        // c.font = 'bold 25px dotum';
+        // c.fillText('영수증', 2, 30);
+        // c.font = 'bold 15px dotum'
+        // c.fillText(`${dateString} ${timeString}`, 0, 60);
+        // c.font = '15px dotum'
+        // c.fillText(`구매자 : ${name}`, 0, 100);
+        // c.fillText(`연락처 : ${contacts}`, 0, 120);
+        // c.fillText(`총 합계 : ${total}`, 0, 180);
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
